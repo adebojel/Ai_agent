@@ -1,0 +1,45 @@
+function add(x, y) { return x + y; }
+function subtract(x, y) { return x - y; }
+function multiply(x, y) { return x * y; }
+function divide(x, y) { return x / y; }
+<html>
+<head>
+<title>Kalkulator Sederhana</title>
+</head>
+<body>
+<h1>Kalkulator Sederhana</h1>
+<form>
+    <label>Angka 1:</label><br>
+    <input type='number' id='num1' value='0'><br><br>
+    <label>Angka 2:</label><br>
+    <input type='number' id='num2' value='0'><br><br>
+    <label>Operasi:</label><br>
+    <select id='op'>
+        <option value='add'>Tambah</option>
+        <option value='subtract'>Kurang</option>
+        <option value='multiply'>Kali</option>
+        <option value='divide'>Bagi</option>
+    </select><br><br>
+    <button onclick='hitung()'>Hitung</button><br><br>
+    <p id='hasil'></p>
+</form>
+<script>
+function hitung() {
+    var num1 = document.getElementById('num1').value;
+    var num2 = document.getElementById('num2').value;
+    var op = document.getElementById('op').value;
+    var hasil = 0;
+    if (op == 'add') {
+        hasil = add(num1, num2);
+    } else if (op == 'subtract') {
+        hasil = subtract(num1, num2);
+    } else if (op == 'multiply') {
+        hasil = multiply(num1, num2);
+    } else if (op == 'divide') {
+        hasil = divide(num1, num2);
+    }
+    document.getElementById('hasil').innerHTML = 'Hasil: ' + hasil;
+}
+</script>
+</body>
+</html>
