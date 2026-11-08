@@ -1,14 +1,14 @@
-name: Build and Package AI Agent
+name: Build and Auto-Release AI Agent
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
-  build:
+  build-and-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Wajib agar GitHub Actions bisa membuat Release otomatis
 
     steps:
     - name: Checkout Repository
@@ -28,7 +28,11 @@ jobs:
       run: |
         python -m py_compile main.py
 
-    - name: Upload Artifacts (App Package)
+    - name: Generate Version Tag
+      id: tag
+      run: echo "tag_name=v1.0.$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
+
+    - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: ai-agent-bundle
@@ -37,5 +41,18 @@ jobs:
           .env.example
           *.py
           *.html
-        if-no-files-found: ignore
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.tag.outputs.tag_name }}
+        name: "Auto Release AI Agent - ${{ steps.tag.outputs.tag_name }}"
+        body: |
+          🤖 **Automated Release by AI Agent (Moto G57 Environment)**
+          - File utama `main.py` diperbarui secara otonom.
+          - Paket aplikasi dan skrip telah dikompilasi dan diunggah ke Artifacts.
+        files: |
+          main.py
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
