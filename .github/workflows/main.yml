@@ -37,8 +37,6 @@ jobs:
       with:
         name: ai-agent-bundle
         path: |
-          main.py
-          .env.example
           *.py
           *.html
         if-no-files-found: ignore
@@ -50,12 +48,9 @@ jobs:
         name: "Auto Release AI Agent - ${{ steps.tag.outputs.tag_name }}"
         body: |
           🤖 **Automated Release by AI Agent (Moto G57 Environment)**
-          - File utama `main.py` dan aplikasi baru telah digenerate secara otonom.
-          - Paket aplikasi dan skrip telah dikompilasi, diunggah ke Artifacts, dan dilampirkan di rilis ini.
+          - Skrip aplikasi baru telah digenerate dan di-release secara otonom.
         files: |
-          main.py
           *.py
-          *.html
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
