@@ -41,6 +41,7 @@ jobs:
           .env.example
           *.py
           *.html
+        if-no-files-found: ignore
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
@@ -49,10 +50,12 @@ jobs:
         name: "Auto Release AI Agent - ${{ steps.tag.outputs.tag_name }}"
         body: |
           🤖 **Automated Release by AI Agent (Moto G57 Environment)**
-          - File utama `main.py` diperbarui secara otonom.
-          - Paket aplikasi dan skrip telah dikompilasi dan diunggah ke Artifacts.
+          - File utama `main.py` dan aplikasi baru telah digenerate secara otonom.
+          - Paket aplikasi dan skrip telah dikompilasi, diunggah ke Artifacts, dan dilampirkan di rilis ini.
         files: |
           main.py
+          *.py
+          *.html
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
