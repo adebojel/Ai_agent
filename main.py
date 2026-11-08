@@ -82,6 +82,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             with open(filename, "w", encoding="utf-8") as f:
                 f.write(app_code)
 
+            # Konfigurasi user git lokal jika belum ada agar commit tidak error
+            subprocess.run(["git", "config", "--local", "user.email", "bot@aiagent.local"], capture_output=True)
+            subprocess.run(["git", "config", "--local", "user.name", "AI Agent Bot"], capture_output=True)
+
             # Jalankan otomatisasi Git (add, commit, push ke GitHub)
             subprocess.run(["git", "add", filename], capture_output=True)
             commit_msg = f"Auto-generated app: {filename} via Telegram bot"
