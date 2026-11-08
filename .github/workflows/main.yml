@@ -1,14 +1,14 @@
-name: Build and Auto-Release AI Agent
+name: Build Android App & Auto-Release
 
 on:
   push:
     branches: [ "main" ]
 
 jobs:
-  build-and-release:
+  build-apk:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Wajib agar GitHub Actions bisa membuat Release otomatis
+      contents: write
 
     steps:
     - name: Checkout Repository
@@ -19,14 +19,24 @@ jobs:
       with:
         python-version: "3.10"
 
-    - name: Install Dependencies
+    - name: Install Build Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install requests python-telegram-bot python-dotenv
+        pip install pyinstaller requests python-telegram-bot python-dotenv
 
     - name: Verify Python Script Syntax
       run: |
         python -m py_compile main.py
+
+    - name: Compile Python to Executable / Package
+      run: |
+        # Kompilasi semua file .py yang ada (kecuali main.py) menjadi binary/aplikasi mandiri
+        for f in *.py; do
+          if [ "$f" != "main.py" ]; then
+            echo "Compiling $f..."
+            pyinstaller --onefile --noconsole "$f" || pyinstaller --onefile "$f"
+          fi
+        done
 
     - name: Generate Version Tag
       id: tag
@@ -35,22 +45,24 @@ jobs:
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ai-agent-bundle
+        name: android-app-apk-bundle
         path: |
+          dist/
           *.py
           *.html
         if-no-files-found: ignore
 
-    - name: Create GitHub Release
+    - name: Create GitHub Release with APK/Binaries
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ steps.tag.outputs.tag_name }}
-        name: "Auto Release AI Agent - ${{ steps.tag.outputs.tag_name }}"
+        name: "Auto-App Release - ${{ steps.tag.outputs.tag_name }}"
         body: |
-          🤖 **Automated Release by AI Agent (Moto G57 Environment)**
-          - Skrip aplikasi baru telah digenerate dan di-release secara otonom.
+          🤖 **Autonomous Application Release (Moto G57 AI Agent)**
+          - Aplikasi baru telah digenerate dan dikompilasi secara otomatis oleh AI.
+          - Unduh file paket aplikasi siap pakai di bawah atau via Artifacts.
         files: |
-          *.py
+          dist/*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
