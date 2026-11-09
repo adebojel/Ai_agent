@@ -11,121 +11,141 @@ load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
-# Daftar 9Router Multi-Model Fallback Gratis Terbaru (Otomatis Berpindah Jika Limit/Error)
-FREE_MODELS = [
-    "deepseek/deepseek-chat:free",
-    "google/gemma-2-9b-it:free",
-    "meta-llama/llama-3.3-70b-instruct:free",
-    "mistralai/mistral-7b-instruct:free",
-    "qwen/qwen-2.5-7b-instruct:free",
-    "nousresearch/hermes-3-llama-3.1-405b:free"
+# Daftar Kolam Multi-Model & Multi-Engine AI Gratis (Auto-Switching Anti-Buntu)
+AI_PROVIDERS = [
+    {
+        "name": "OpenRouter DeepSeek Chat",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "headers": {
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "HTTP-Referer": "https://github.com/adebojel/Ai_agent",
+            "X-Title": "Moto G57 AI Supreme",
+            "Content-Type": "application/json"
+        },
+        "model": "deepseek/deepseek-chat"
+    },
+    {
+        "name": "OpenRouter Llama 3.1 8B",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "headers": {
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "HTTP-Referer": "https://github.com/adebojel/Ai_agent",
+            "X-Title": "Moto G57 AI Supreme",
+            "Content-Type": "application/json"
+        },
+        "model": "meta-llama/llama-3.1-8b-instruct:free"
+    },
+    {
+        "name": "OpenRouter Gemma 2 9B",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "headers": {
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "HTTP-Referer": "https://github.com/adebojel/Ai_agent",
+            "X-Title": "Moto G57 AI Supreme",
+            "Content-Type": "application/json"
+        },
+        "model": "google/gemma-2-9b-it:free"
+    },
+    {
+        "name": "OpenRouter Mistral 7B",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "headers": {
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "HTTP-Referer": "https://github.com/adebojel/Ai_agent",
+            "X-Title": "Moto G57 AI Supreme",
+            "Content-Type": "application/json"
+        },
+        "model": "mistralai/mistral-7b-instruct:free"
+    },
+    {
+        "name": "OpenRouter Qwen 2.5 7B",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "headers": {
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "HTTP-Referer": "https://github.com/adebojel/Ai_agent",
+            "X-Title": "Moto G57 AI Supreme",
+            "Content-Type": "application/json"
+        },
+        "model": "qwen/qwen-2.5-7b-instruct:free"
+    }
 ]
 
-def call_openrouter_multimodal(prompt, image_url=None):
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "HTTP-Referer": "https://github.com/adebojel/Ai_agent",
-        "X-Title": "Moto G57 AI Supreme",
-        "Content-Type": "application/json"
-    }
+def query_ai_supreme(prompt):
+    system_prompt = (
+        "Kamu adalah 'Kantor AI Supreme', sebuah entitas kecerdasan buatan tingkat lanjut gabungan dari Gemini, ChatGPT, Claude, dan Poe yang berjalan di server Termux Android. "
+        "Kamu menguasai seluruh teknologi perangkat lunak secara mendalam, meliputi: "
+        "Backend & Systems (Java, C++, Python, C#, Node.js, PHP, JavaScript, Linux Bash, Termux Automation), "
+        "Game Development (Unity 3D dengan C#, Unreal Engine dengan C++/Blueprint), "
+        "Mobile & Frontend (Kotlin, Swift, React Native, Flutter, HTML, CSS). "
+        "Berbicaralah dengan gaya obrolan natural, ramah, menggunakan Bahasa Indonesia atau bahasa gaul/kekinian yang asyik, serta dukung multi-bahasa. "
+        "Jika pengguna meminta dibuatkan kode atau aplikasi, berikan kode program lengkapnya di dalam blok kode Markdown yang sesuai (contoh: ```python ... ```, ```cpp ... ```, ```cs ... ```, dll) "
+        "beserta saran nama file yang jelas (contoh: `main.cpp`, `player.cs`, `app.py`, `script.js`)."
+    )
 
-    # Format pesan mendukung teks dan gambar (Multimodal ala Gemini/Claude)
-    content_payload = [{"type": "text", "text": prompt}]
-    if image_url:
-        content_payload.append({
-            "type": "image_url",
-            "image_url": {"url": image_url}
-        })
-
-    for model in FREE_MODELS:
+    for provider in AI_PROVIDERS:
         payload = {
-            "model": model,
+            "model": provider["model"],
             "messages": [
-                {
-                    "role": "system",
-                    "content": (
-                        "Kamu adalah Asisten AI Supreme multiguna yang cerdas, ramah, dan adaptif. "
-                        "Kamu menguasai berbagai bahasa termasuk Bahasa Indonesia, bahasa gaul/kekinian, dan multi-bahasa asing. "
-                        "Jika diajak ngobrol santai, jadilah teman ngobrol yang asyik seperti ChatGPT, Claude, atau Gemini. "
-                        "Jika pengguna meminta dibuatkan aplikasi/skrip, berikan kodenya secara lengkap di dalam blok kode Markdown (```python ... ```) "
-                        "beserta nama file yang jelas (contoh: `catatan.py`)."
-                    )
-                },
-                {"role": "user", "content": content_payload}
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
             ]
         }
         try:
-            print(f"🔄 Mencoba model 9Router: {model}...")
-            response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload, timeout=45)
+            print(f"🔄 Mengakses engine: {provider['name']} ({provider['model']})...")
+            response = requests.post(provider["url"], headers=provider["headers"], json=payload, timeout=40)
             if response.status_code == 200:
                 res_data = response.json()
                 if "choices" in res_data:
-                    print(f"✅ Sukses menggunakan model: {model}")
+                    print(f"✅ Berhasil merespons via {provider['name']}")
                     return res_data["choices"][0]["message"]["content"]
-            print(f"⚠️ Model {model} gagal (Status {response.status_code}), beralih otomatis...")
+            print(f"⚠️ Engine {provider['name']} mengembalikan status {response.status_code}, beralih otomatis...")
         except Exception as e:
-            print(f"❌ Error pada model {model}: {e}, beralih...")
-            
-    return "⚠️ Maaf bro, semua jalur model 9Router gratis sedang sibuk atau habis kuotanya. Coba beberapa saat lagi ya!"
+            print(f"❌ Koneksi ke {provider['name']} gagal: {e}, beralih...")
+
+    return "⚠️ Maaf bro, semua jalur engine AI gratis sedang sibuk atau limit tercapai. Sistem sedang mencoba memulihkan diri, coba beberapa saat lagi ya!"
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_message = update.message.text or update.message.caption or "Halo, bisa bantu saya?"
+    user_message = update.message.text or update.message.caption or "Halo"
     chat_id = update.message.chat_id
 
-    # Kirim status awal
     status_message = await context.bot.send_message(
         chat_id=chat_id, 
-        text="🧠 **Kantor AI Supreme:** Menerima pesan & menganalisis permintaan..."
+        text="🧠 **Kantor AI Supreme:** Menganalisis permintaan lintas bahasa pemrograman & engine..."
     )
     message_id = status_message.message_id
 
-    image_url = None
     try:
-        # Penanganan Multimodal (Foto / Gambar)
-        if update.message.photo:
-            await context.bot.edit_message_text(
-                chat_id=chat_id, message_id=message_id,
-                text="🖼️ **Multimodal:** Mendeteksi gambar, mengunduh dan menganalisis visual..."
-            )
-            photo_file = await update.message.photo[-1].get_file()
-            image_url = photo_file.file_path
+        reply_text = query_ai_supreme(user_message)
 
         await context.bot.edit_message_text(
             chat_id=chat_id, message_id=message_id,
-            text="⚡ **9Router:** Memproses kecerdasan AI (Chat & Otomasi)..."
+            text="🚀 **Otomasi Pabrik Software:** Menyimpan file kode & sinkronisasi ke GitHub..."
         )
 
-        # Panggil fungsi AI dengan sistem Multi-Model Fallback
-        reply_text = call_openrouter_multimodal(user_message, image_url)
-
-        await context.bot.edit_message_text(
-            chat_id=chat_id, message_id=message_id,
-            text="🚀 **Otomasi:** Memeriksa blok kode & sinkronisasi ke GitHub..."
-        )
-
-        # Deteksi blok kode Python untuk otomatisasi rilis APK via GitHub Actions
-        code_blocks = re.findall(r"```(?:python)?\n(.*?)```", reply_text, re.DOTALL)
-        file_matches = re.findall(r"(?:nama file|file|bernama)[:\s]+`?([a-zA-Z0-9_\-]+\.py)`?", user_message.lower() + " " + reply_text.lower())
-        filename = file_matches[0] if file_matches else "app_generated.py"
-
+        # Deteksi blok kode (mendukung python, cpp, csharp, java, dart, javascript, dll)
+        code_blocks = re.findall(r"```(?:\w+)?\n(.*?)```", reply_text, re.DOTALL)
+        file_matches = re.findall(r"(?:nama file|file|bernama|script)[:\s]+`?([a-zA-Z0-9_\-\.]+\.[a-zA-Z0-9]+)`?", user_message.lower() + " " + reply_text.lower())
+        
+        filename = file_matches[0] if file_matches else "supreme_output.py"
         automation_status = ""
+
         if code_blocks:
             app_code = code_blocks[0]
             with open(filename, "w", encoding="utf-8") as f:
                 f.write(app_code)
 
             subprocess.run(["git", "config", "--local", "user.email", "bot@aisupreme.local"], capture_output=True)
-            subprocess.run(["git", "config", "--local", "user.name", "AI Supreme Bot"], capture_output=True)
+            subprocess.run(["git", "config", "--local", "user.name", "AI Supreme Engine"], capture_output=True)
 
             subprocess.run(["git", "add", filename], capture_output=True)
-            commit_msg = f"Auto-generated app: {filename} via Telegram AI Supreme"
+            commit_msg = f"Auto-engineered file: {filename} via Kantor AI Supreme"
             subprocess.run(["git", "commit", "-m", commit_msg], capture_output=True)
             push_result = subprocess.run(["git", "push", "origin", "main"], capture_output=True)
 
             if push_result.returncode == 0:
-                automation_status = f"\n\n✅ **Otomasi Berhasil!** File `{filename}` tersimpan, ter-push ke GitHub, dan GitHub Actions sedang mem-build APK artifact secara otomatis!"
+                automation_status = f"\n\n✅ **Otomasi Sukses!** File `{filename}` berhasil dirancang, disimpan, di-push ke GitHub, dan GitHub Actions siap memproses artifact-nya!"
             else:
-                automation_status = f"\n\n⚠️ File `{filename}` tersimpan lokal, namun gagal push otomatis ke GitHub."
+                automation_status = f"\n\n⚠️ File `{filename}` tersimpan lokal, namun push GitHub tertunda."
 
         final_output = reply_text + automation_status
         if len(final_output) > 4000:
@@ -146,9 +166,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 if __name__ == "__main__":
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
-    # Mendukung teks, foto, dan caption media
-    app.add_handler(MessageHandler(filters.TEXT | filters.PHOTO & (~filters.COMMAND), handle_message))
+    app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_message))
     
-    print("🚀 Kantor AI Supreme Berjalan di Termux... Siap Obrolan, Multimodal, & Otomasi 24/7.")
+    print("🚀 Kantor AI Supreme Multi-Engine Berjalan 24/7 di Termux...")
     app.run_polling()
     
